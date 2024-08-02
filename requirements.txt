@@ -1,0 +1,8 @@
+pydantic~=2.7.0
+pyTelegramBotAPI~=4.17.0
+python-dotenv~=1.0.1
+requests~=2.31.0
+simplejson~=3.19.2
+loguru~=0.7.2
+Js2Py~=0.74
+ruff

@@ -9,8 +9,8 @@ from telebot import TeleBot, types, apihelper
 
 from src.YandexMusic import YandexMusic
 
-with open("config.json", "r") as f:
-    token = json.load(f)["token"]
+with open("config.json", "r") as _f:
+    token = json.load(_f)["token"]
 
 app = TeleBot(os.getenv("BOT_API", ""), num_threads=int(os.getenv("WORKERS_COUNT", 1)))
 yandex_music = YandexMusic(token)
@@ -189,6 +189,10 @@ def track_handler(query: types.CallbackQuery):
     track = yandex_music.get_track_info(track_id)
     download_uri = yandex_music.get_track_download_uri(track.id)
     if not download_uri:
+        try:
+            app.delete_message(wait_msg.chat.id, wait_msg.message_id)
+        except apihelper.ApiTelegramException:
+            pass
         app.edit_message_text(
             "Ошибка при загрузке трека",
             query.message.chat.id,
@@ -216,7 +220,7 @@ def track_handler(query: types.CallbackQuery):
 
 
 @app.message_handler(commands=["token"])
-def new_token(message: types.Message):
+def new_token_handler(message: types.Message):
     if message.from_user.id != int(os.getenv("ADMIN_ID")):
         return
     app.delete_message(message.chat.id, message.message_id)

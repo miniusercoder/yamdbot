@@ -22,12 +22,13 @@ class YandexMusic:
         self.__session = requests.session()
         self.__session.headers.update(
             {
-                "X-Yandex-Music-Client": "YandexMusicDesktopAppWindows/5.0.21",
+                "X-Yandex-Music-Client": "YandexMusicDesktopAppWindows/5.13.2",
                 "X-Yandex-Music-Frontend": "new",
                 "Accept-Language": "ru",
                 "Authorization": f"OAuth {self.__token}",
+                "X-Yandex-Music-Without-Invocation-Info": "1",
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
-                "YandexMusic/5.0.21 Chrome/118.0.5993.129 Electron/27.0.4 Safari/537.36",
+                "YandexMusic/5.13.2 Chrome/118.0.5993.129 Electron/27.0.4 Safari/537.36",
                 "Sec-Ch-Ua-Platform": '"Windows"',
                 "Accept": "*/*",
                 "Origin": "music-application://desktop",
@@ -49,7 +50,7 @@ class YandexMusic:
         link = "https://api.music.yandex.net/search/instant/mixed"
         params = {
             "text": query,
-            "type": "album,artist,playlist,track,ugc_track,wave",
+            "type": "album,artist,playlist,track,wave,podcast,podcast_episode",
             "page": offset // count,
             "filter": "track",
             "pageSize": count,
@@ -62,15 +63,11 @@ class YandexMusic:
         except json.JSONDecodeError:
             logger.exception("Failed to parse response")
             return TrackList()
-        if (
-            not isinstance(response, dict)
-            or not response.get("result")
-            or not response["result"].get("results")
-        ):
+        if not isinstance(response, dict) or not response.get("results"):
             logger.error("Failed to get search results")
             logger.debug(json.dumps(response, indent=2, ensure_ascii=False))
             return TrackList()
-        tracks = response["result"]["results"]
+        tracks = response["results"]
         tracks = filter(lambda track: track.get("type") == "track", tracks)
         tracks = map(lambda track: track.get("track"), tracks)
         try:
@@ -82,7 +79,7 @@ class YandexMusic:
             if track.thumbnail:
                 track.thumbnail = "https://" + track.thumbnail.replace("%%", "200x200")
         track_list = TrackList(
-            tracks=tracks, count=len(tracks), total=response["result"]["total"]
+            tracks=tracks, count=len(tracks), total=response["total"]
         )
         return track_list
 
@@ -100,15 +97,11 @@ class YandexMusic:
         except json.JSONDecodeError:
             logger.exception("Failed to parse response")
             return Track()
-        if (
-            not isinstance(response, dict)
-            or not response.get("result")
-            or len(response["result"]) == 0
-        ):
+        if not isinstance(response, list) or len(response) == 0:
             logger.error("Failed to get track info")
             logger.debug(json.dumps(response, indent=2, ensure_ascii=False))
             return Track()
-        track = response["result"][0]
+        track = response[0]
         try:
             track = Track(**track)
         except TypeError:
@@ -143,13 +136,14 @@ class YandexMusic:
         except json.JSONDecodeError:
             logger.exception("Failed to parse response")
             return None
-        if not isinstance(response, dict) or not response.get("result"):
+        if not isinstance(response, list) or len(response) == 0:
             logger.error("Failed to get download uri")
             logger.debug(json.dumps(response, indent=2, ensure_ascii=False))
             return None
+        logger.debug(json.dumps(response, indent=2, ensure_ascii=False))
         max_bitrate = 0
         max_bitrate_link = None
-        for link in response["result"]:
+        for link in response:
             if link["bitrateInKbps"] > max_bitrate:
                 max_bitrate = link["bitrateInKbps"]
                 max_bitrate_link = link["downloadInfoUrl"]

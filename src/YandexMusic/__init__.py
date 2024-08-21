@@ -140,7 +140,6 @@ class YandexMusic:
             logger.error("Failed to get download uri")
             logger.debug(json.dumps(response, indent=2, ensure_ascii=False))
             return None
-        logger.debug(json.dumps(response, indent=2, ensure_ascii=False))
         max_bitrate = 0
         max_bitrate_link = None
         for link in response:

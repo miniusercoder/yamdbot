@@ -1,11 +1,10 @@
-import math
 import os
 import queue
 import uuid
 
 import requests
 import simplejson as json
-from telebot import TeleBot, types, apihelper
+from telebot import TeleBot, apihelper, types
 
 from src.YandexMusic import YandexMusic
 
@@ -80,6 +79,28 @@ def loading_handler(query: types.CallbackQuery):
     )
 
 
+@app.message_handler(commands=["token"])
+def new_token_handler(message: types.Message):
+    if message.from_user.id != int(os.getenv("ADMIN_ID")):
+        return
+    app.delete_message(message.chat.id, message.message_id)
+    new_token = message.text.split(" ")[1]
+    with open("config.json", "w") as f:
+        json.dump({"token": new_token}, f)
+    yandex_music.token = new_token
+    app.send_message(message.chat.id, "Токен обновлён")
+
+
+@app.message_handler(commands=["echo"])
+def echo_handler(message: types.Message):
+    app.send_message(
+        message.chat.id,
+        message.text or "reply",
+        entities=message.entities,
+        parse_mode="",
+    )
+
+
 @app.message_handler(func=lambda message: True)
 def search_audio(message: types.Message):
     if message.chat.type != "private":
@@ -106,7 +127,7 @@ def search_audio(message: types.Message):
         buttons.append(
             types.InlineKeyboardButton(
                 "<",
-                callback_data=f"list:{offset-1}:{message.text}",
+                callback_data=f"list:{offset - 1}:{message.text}",
             )
         )
     buttons.append(
@@ -119,7 +140,7 @@ def search_audio(message: types.Message):
         buttons.append(
             types.InlineKeyboardButton(
                 ">",
-                callback_data=f"list:{offset+1}:{message.text}",
+                callback_data=f"list:{offset + 1}:{message.text}",
             )
         )
     kb.row(*buttons)
@@ -152,7 +173,7 @@ def list_handler(query: types.CallbackQuery):
         buttons.append(
             types.InlineKeyboardButton(
                 "<",
-                callback_data=f"list:{offset-1}:{message}",
+                callback_data=f"list:{offset - 1}:{message}",
             )
         )
     buttons.append(
@@ -165,7 +186,7 @@ def list_handler(query: types.CallbackQuery):
         buttons.append(
             types.InlineKeyboardButton(
                 ">",
-                callback_data=f"list:{offset+1}:{message}",
+                callback_data=f"list:{offset + 1}:{message}",
             )
         )
     kb.row(*buttons)
@@ -215,15 +236,3 @@ def track_handler(query: types.CallbackQuery):
         app.delete_message(wait_msg.chat.id, wait_msg.message_id)
     except apihelper.ApiTelegramException:
         pass
-
-
-@app.message_handler(commands=["token"])
-def new_token_handler(message: types.Message):
-    if message.from_user.id != int(os.getenv("ADMIN_ID")):
-        return
-    app.delete_message(message.chat.id, message.message_id)
-    new_token = message.text.split(" ")[1]
-    with open("config.json", "w") as f:
-        json.dump({"token": new_token}, f)
-    yandex_music.token = new_token
-    app.send_message(message.chat.id, "Токен обновлён")

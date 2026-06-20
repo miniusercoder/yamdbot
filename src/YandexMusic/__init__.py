@@ -19,7 +19,13 @@ class YandexMusic:
 
     def __init__(self, token: str):
         self.__token = token
-        self.__session = requests.session()
+        self.__session = requests.Session()
+        proxy = os.getenv("YANDEX_PROXY")
+        if proxy:
+            self.__session.proxies = {
+                "http": proxy,
+                "https": proxy,
+            }
         self.__session.headers.update(
             {
                 "X-Yandex-Music-Client": "YandexMusicDesktopAppWindows/5.13.2",
@@ -79,7 +85,7 @@ class YandexMusic:
             if track.thumbnail:
                 track.thumbnail = "https://" + track.thumbnail.replace("%%", "200x200")
         track_list = TrackList(
-            tracks=tracks, count=len(tracks), last_page=response['lastPage']
+            tracks=tracks, count=len(tracks), last_page=response["lastPage"]
         )
         return track_list
 
@@ -116,6 +122,9 @@ class YandexMusic:
         timestamp = full_timestamp // 1000
         link = f"https://api.music.yandex.net/tracks/{track_id}/download-info"
         secret_key = os.getenv("YANDEX_SECRET_KEY")
+        if not secret_key:
+            logger.error("YANDEX_SECRET_KEY is not set")
+            return None
         sign = hmac.new(
             secret_key.encode(), f"{timestamp}{track_id}".encode(), hashlib.sha256
         )
@@ -165,7 +174,7 @@ class YandexMusic:
             logger.debug(json.dumps(response, indent=2, ensure_ascii=False))
             return None
         link_hash = hashlib.md5(
-            f"{os.getenv('YANDEX_SECRET_KEY')}{response['path'][1:]}{response['s']}".encode()
+            f"{secret_key}{response['path'][1:]}{response['s']}".encode()
         )
         return (
             f"https://{response['host']}/get-mp3/{link_hash.hexdigest()}/"

@@ -3,16 +3,16 @@ name = "yamdbot"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.13"
 dependencies = [
-    "js2py~=0.74",
-    "loguru~=0.7.2",
-    "pydantic~=2.7.0",
-    "pytelegrambotapi~=4.22.1",
-    "python-dotenv~=1.0.1",
-    "requests~=2.31.0",
-    "ruff>=0.14.0",
-    "simplejson~=3.19.2",
+    "js2py>=0.74",
+    "loguru>=0.7.3",
+    "pydantic>=2.9.2",
+    "pytelegrambotapi>=4.22.1",
+    "python-dotenv>=1.0.1",
+    "requests>=2.31.0",
+    "ruff>=0.15.18",
+    "simplejson>=3.19.3",
 ]
 
 [dependency-groups]

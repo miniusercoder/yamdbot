@@ -89,7 +89,6 @@ def search_audio(message: types.Message):
     track_list = yandex_music.get_search_results(
         message.text, count=on_page, offset=offset
     )
-    tracks_count = track_list.total
     if not track_list.count:
         app.send_message(message.chat.id, "Нет результатов по запросу")
         return
@@ -112,11 +111,11 @@ def search_audio(message: types.Message):
         )
     buttons.append(
         types.InlineKeyboardButton(
-            f"[{offset + 1}/{math.ceil(tracks_count / on_page)}]",
+            f"[{offset + 1}]",
             callback_data="no_action",
         )
     )
-    if (offset + 1) * on_page < tracks_count:
+    if not track_list.last_page:
         buttons.append(
             types.InlineKeyboardButton(
                 ">",
@@ -139,7 +138,6 @@ def list_handler(query: types.CallbackQuery):
     track_list = yandex_music.get_search_results(
         message, count=on_page, offset=offset * on_page
     )
-    tracks_count = track_list.total
     kb = types.InlineKeyboardMarkup(row_width=1)
     for track in track_list.tracks:
         artists = ", ".join(artist.name for artist in track.artists)
@@ -159,11 +157,11 @@ def list_handler(query: types.CallbackQuery):
         )
     buttons.append(
         types.InlineKeyboardButton(
-            f"[{offset + 1}/{math.ceil(tracks_count / 30)}]",
+            f"[{offset + 1}]",
             callback_data="no_action",
         )
     )
-    if (offset + 1) * 30 < tracks_count:
+    if not track_list.last_page:
         buttons.append(
             types.InlineKeyboardButton(
                 ">",

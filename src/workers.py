@@ -31,6 +31,7 @@ def audio_send_worker(q):
             performer=", ".join(artist.name for artist in track.artists),
             title=track.title,
             thumbnail=thumbnail,
+            disable_notification=True,
         )
         audio = types.InputMediaAudio(
             media=msg.audio.file_id,

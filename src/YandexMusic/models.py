@@ -25,4 +25,4 @@ class Track(BaseModel):
 class TrackList(BaseModel):
     tracks: list[Track] = []
     count: int = 0
-    total: int = 0
+    last_page: bool = False

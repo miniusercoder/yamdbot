@@ -79,7 +79,7 @@ class YandexMusic:
             if track.thumbnail:
                 track.thumbnail = "https://" + track.thumbnail.replace("%%", "200x200")
         track_list = TrackList(
-            tracks=tracks, count=len(tracks), total=response["total"]
+            tracks=tracks, count=len(tracks), last_page=response['lastPage']
         )
         return track_list
 

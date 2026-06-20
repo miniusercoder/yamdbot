@@ -28,13 +28,12 @@ class YandexMusic:
             }
         self.__session.headers.update(
             {
-                "X-Yandex-Music-Client": "YandexMusicDesktopAppWindows/5.13.2",
-                "X-Yandex-Music-Frontend": "new",
+                "X-Yandex-Music-Client": "YandexMusicDesktopAppLinux/5.107.0",
                 "Accept-Language": "ru",
                 "Authorization": f"OAuth {self.__token}",
                 "X-Yandex-Music-Without-Invocation-Info": "1",
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
-                "YandexMusic/5.13.2 Chrome/118.0.5993.129 Electron/27.0.4 Safari/537.36",
+                "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) "
+                              "YandexMusic/5.107.0 Chrome/140.0.7339.133 Electron/38.2.2 Safari/537.36",
                 "Sec-Ch-Ua-Platform": '"Windows"',
                 "Accept": "*/*",
                 "Origin": "music-application://desktop",
